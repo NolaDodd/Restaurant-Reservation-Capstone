@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {useLocation, useNavigate} from "react-router-dom"
-import { listReservations } from "../utils/api";
+import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { today, previous, next } from "../utils/date-time";
 
@@ -13,6 +13,7 @@ import { today, previous, next } from "../utils/date-time";
 function Dashboard() {
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
+  const [tables, setTables] = useState([])
 
   let navigate = useNavigate()
   let location = useLocation()
@@ -28,6 +29,8 @@ function Dashboard() {
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
+    listTables(abortController.signal)
+      .then(setTables);
     listReservations({ date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
@@ -46,12 +49,29 @@ function Dashboard() {
                       <p className="card-text"><b>Reservation Time:</b> {reservation.reservation_time} --- {reservation.reservation_date}</p>
                       <p className="card-text"><b>Number of People:</b> {reservation.people}</p>
                       <button>Edit</button>
+                      <button>Seat</button>
                       <button className="btn btn-danger">Delete</button>
                   </div>
               </div>
           </li>
           : null
           ));
+
+          const tableItems = tables.map((table, index) => (
+            <li key={index}>
+              <div className="card">
+                  <div className="card-body">
+                      <div className="card-header"><h5 className="card-title">Table {table.table_name}</h5></div>
+                      <p className="card-text"><b>Table Capacity:</b> {table.capacity}</p>
+                      <button>Edit</button>
+                      <button>Seat</button>
+                      <button className="btn btn-danger">Delete</button>
+                  </div>
+              </div>
+          </li>
+
+
+          ))
 
   return (
     <main>
@@ -65,9 +85,14 @@ function Dashboard() {
       <ErrorAlert error={reservationsError} />
       {JSON.stringify(reservations)}
       <br/>
-
-      <ul>{reservationItems}</ul>
-
+      <div>
+      <h3>Reservations</h3>
+        <ul>{reservationItems}</ul>
+      </div>
+      <div>
+        <h3>Tables</h3>
+        <ul>{tableItems}</ul>
+      </div>
     </main>
   );
 }

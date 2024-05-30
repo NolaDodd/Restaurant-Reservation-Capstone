@@ -45,7 +45,8 @@ function CreateEditTable(){
                     <br />
                     <input
                         id="capacity"
-                        type="text"
+                        type="number"
+                        min="1"
                         name="capacity"
                         onChange={handleChange}
                         value={formData.capacity}

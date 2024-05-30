@@ -38,6 +38,7 @@ function RootRoutes() {
         <Route path="/reservations" element={<Dashboard reservations={reservations}/>} />
         <Route path="/reservations/new" element={<CreateEditReservation />} />
         <Route path="/reservations/:reservation_id/edit" element={<CreateEditReservation/>} />
+        <Route path="/reservations/:reservation_id/seat" element={<CreateEditTable />} />
         <Route path="/tables/new" element={<CreateEditTable />} />
         <Route path="/tables/:table_id/seat" element={<CreateEditTable/>}/>
         <Route path="/dashboard/*" element={<Dashboard date={today()}/>} />

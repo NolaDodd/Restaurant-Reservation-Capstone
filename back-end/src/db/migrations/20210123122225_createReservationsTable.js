@@ -13,5 +13,5 @@ exports.up = function (knex) {
 
 exports.down = function(knex) {
   return knex.schema.dropTable("reservations")
-  .then(() => console.log("Dropped Table"))
+  .then(() => console.log("Dropped Reservation Table"))
 };
