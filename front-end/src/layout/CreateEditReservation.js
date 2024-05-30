@@ -1,6 +1,7 @@
 import React, {useState } from "react";
 import {Link, useNavigate} from "react-router-dom"
 import { createReservation } from "../utils/api";
+import ErrorAlert from "./ErrorAlert";
 
 function CreateEditReservation(){
     const initialFormState ={
@@ -13,7 +14,7 @@ function CreateEditReservation(){
     }
 
     const [formData, setFormData] = useState({...initialFormState})
-    console.log(formData)
+    const [formError, setFormError] = useState(null);
     
     const handleChange = ({target}) => {
         setFormData({...formData, [target.name]: target.value})
@@ -24,10 +25,16 @@ function CreateEditReservation(){
     const handleSubmit = async (event) => {
         console.log("handleSubmit")
         event.preventDefault()
-        setFormData(initialFormState)
-        createReservation(formData) 
-        navigate(`/dashboard`)
-    }
+      
+        try {
+          await createReservation(formData);
+          setFormData(initialFormState);
+          navigate(`/dashboard`);
+        } catch (error) {
+          setFormError(error)
+        }
+      }
+      
 
     const handleEdit = async (event) => {
         console.log("handleEdit")
@@ -121,7 +128,7 @@ function CreateEditReservation(){
                     type="number"
                     name="people"
                     min="1"
-                    onChange={handleChange}
+                    onChange={handleChange} 
                     value={formData.people}
                     required
                     />
@@ -130,13 +137,13 @@ function CreateEditReservation(){
                 <button type="submit" className="btn btn-primary">Submit</button>
                 <Link to="/" className= "btn btn-secondary">Cancel</Link>
             </form>
-        </div>
-     
+            <ErrorAlert error={formError} />
+        </div>    
 )
   
 
-return (
-    createReservationForm
+return ( 
+    createReservationForm          
 )
 
 

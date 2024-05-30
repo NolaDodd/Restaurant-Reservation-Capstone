@@ -59,13 +59,14 @@ async function fetchJson(url, options, onCancel) {
  */
 
 export async function listReservations(params, signal) {
-  const url = new URL(`${API_BASE_URL}/reservations`);
-  Object.entries(params).forEach(([key, value]) =>
+    const url = new URL(`${API_BASE_URL}/reservations`);
+    Object.entries(params).forEach(([key, value]) =>
     url.searchParams.append(key, value.toString())
-  );
+  )
   return await fetchJson(url, { headers, signal }, [])
     .then(formatReservationDate)
     .then(formatReservationTime);
+
 }
 
 
@@ -75,13 +76,18 @@ export async function listReservations(params, signal) {
  *  a promise that resolves to the saved reservation, which will now have an 'id' property.
  */
 export async function createReservation(reservation, signal) {
-  const url = `${API_BASE_URL}/reservations`;
-  reservation.people = Number(reservation.people);
-  const options = {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ data: reservation }),
-    signal,
-  };
-  return await fetchJson(url, options, reservation);
+  try{
+     const url = `${API_BASE_URL}/reservations`;
+      reservation.people = Number(reservation.people);
+      const options = {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ data: reservation }),
+        signal,
+      };
+  return await fetchJson(url, options, reservation); 
+  } catch (error){
+    throw error
+  }
+
 }

@@ -3,33 +3,26 @@
  */
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const service = require("./reservations.service")
-const moment = require("moment")
+const moment = require("moment-timezone")
 
-async function list(req, res) {
-  res.json({
-    data: await service.list(),
-  });
-}
 
-function filterByDate(req, res, next) {
-  const { date } = req.query;
-  const { reservation_date } = req.body.data;
-
-  if (date !== reservation_date) {
-    return next({status: 400, message: "No reservations found for the given date"});
+async function list(req, res, next) {
+  const {date} = req.query
+  console.log("list date", date)
+  let reservations
+  
+  if (date){
+    reservations = await service.listByDate(date)
+  } else {
+    reservations = await service.list()
   }
 
-  next();
-}
+  if (reservations.length <= 0){
+    return next({status: 400, message: "No reservations found for the given date"})
+  } else {
+    res.json({ data: reservations });
+  }
 
-function getReservations(req, res, next) {
-  let reservations = []; // Fetch reservations from your database
-
-  reservations.sort((a, b) => {
-    return new Date(`1970/01/01 ${a.reservation_time}`) - new Date(`1970/01/01 ${b.reservation_time}`);
-  });
-
-  res.json({ data: reservations });
 }
 
 async function create (req, res){
@@ -37,20 +30,39 @@ async function create (req, res){
   res.status(201).json({data})
 }
 
+function correctTimesOnly(req, res, next){
+  const {data} = req.body // Define 'data' here
+
+  // Parse the reservation date and time in the server's time zone
+  const reservationDateTime = moment.tz(`${data.reservation_date}T${data.reservation_time}`, 'America/Los_Angeles');
+  const today = moment.tz('America/Los_Angeles');
+
+  // Check if the reservation date is a Tuesday
+  if (reservationDateTime.day() === 2) {
+    return next({ status: 400, message: "The restaurant is closed on Tuesdays." });
+  }
+
+  // Check if the reservation time is before 10:30 AM or after 9:30 PM
+  const reservationHour = reservationDateTime.hour();
+  const reservationMinutes = reservationDateTime.minutes();
+  if (reservationHour < 10 || (reservationHour === 10 && reservationMinutes < 30) || reservationHour > 21 || (reservationHour === 21 && reservationMinutes > 30)) {
+    return next({ status: 400, message: "Reservations are only allowed between 10:30 AM and 9:30 PM." });
+  }
+
+  //Check if the reservation date and time is in the past
+  if (reservationDateTime.isBefore(today)) {
+    return next({ status: 400, message: "Only future reservations are allowed." });
+  }
+
+  next()
+}
+
+
+
+
 async function read(req, res){
   const data = res.locals.reservation_id
   res.json({data})
-}
-
-async function listReservationsByDate(req, res, next){
-  console.log("listReservationsByDate")
-  let {date} = req.query
-  if (!date) {
-    date = moment().format('YYYY-MM-DD') // use 'YYYY-MM-DD' format
-  }
-  console.log("date", date)
-  const data = await service.listReservationsByDate(date);
-  res.json({data});
 }
 
 function reservationExists(req, res, next){
@@ -63,26 +75,6 @@ function reservationExists(req, res, next){
     next({status: 404, message: 'Reservation cannot be found'})
   })
   .catch(next)
-}
-
-function correctTimesOnly(req, res, next){
-  const {data: {}} = req.body
-  console.log(data)
-
-  // Extract the reservation date from the data
-  const reservationDate = new Date(data.reservation_date);
-  const today = new Date();
-
-  // Check if the reservation date is a Tuesday
-  if (reservationDate.getUTCDay() === 2) {
-    return next({ status: 400, message: "The restaurant is closed on Tuesdays." });
-  }
-
-  //Check if the reservation date is in the past
-  if (reservationDate.setHours(0,0,0,0) < today.setHours(0,0,0,0)) {
-    return next({ status: 400, message: "Only future reservations are allowed." });
-  }
-  next()
 }
 
 function isValidTime(time) {
@@ -130,12 +122,8 @@ function propertiesExist(req, res, next){
 
 
 
-
-
-
-
 module.exports = {
   list: [asyncErrorBoundary(list)],
-  create: [propertiesExist, asyncErrorBoundary(create)],
+  create: [propertiesExist, correctTimesOnly, asyncErrorBoundary(create)],
   read: [asyncErrorBoundary(read)]
 };
