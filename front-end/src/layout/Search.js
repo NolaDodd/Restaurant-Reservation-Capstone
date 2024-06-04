@@ -1,5 +1,5 @@
 import React, {useState } from "react";
-import {useNavigate} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 
 function Search({reservations}){
     const initialFormState ={
@@ -7,6 +7,7 @@ function Search({reservations}){
     }
 
     const [formData, setFormData] = useState({...initialFormState})
+    const [currentSearch, setCurrentSearch] = useState()
     console.log(formData)
     
     const navigate = useNavigate()
@@ -14,11 +15,13 @@ function Search({reservations}){
     const handleChange = ({target}) => {
         setFormData({...formData, [target.name]: target.value})
     }
+
     const handleSubmit = async (event) => {
-        console.log("handleSubmit")
+        console.log("handleSearchSubmit")
         event.preventDefault()
-        setFormData(initialFormState); 
-        navigate(`/dashboard`)
+
+        setCurrentSearch(formData)
+        
     }
 
     const searchForm = (
@@ -26,7 +29,7 @@ function Search({reservations}){
             <br />
             <form onSubmit={handleSubmit}>
             <label htmlFor="mobile_number">
-                    Search Reservation:
+                    <b>Search Reservation:</b>
                     <br />
                     <input 
                     id="mobile_number" 
@@ -45,11 +48,39 @@ function Search({reservations}){
             </form>
 
         </div>
-     
 )
 
+
+ let reservationItems = reservations.sort((a, b) => a.reservation_id - b.reservation_id).map((reservation, index) => (
+  <li key={index} style={{ listStyleType: "none" }}>
+      <div className="card">
+          <div className="card-body">
+              <div className="card-header"><h5 className="card-title">Reservation {reservation.reservation_id}</h5></div>
+              <p className="card-text"><b>Name:</b> {reservation.first_name} {reservation.last_name}</p>
+              <p className="card-text"><b>Mobile Number:</b> {reservation.mobile_number}</p>
+              <p className="card-text"><b>Reservation Time:</b> {reservation.reservation_time}</p>
+              <p className="card-text"><b>Number of People:</b> {reservation.people}</p>
+              <p data-reservation-id-status={reservation.reservation_id}>
+                <b>Status:</b> {reservation.status}  {reservation.status === "Booked" ? 
+                  <Link to={`/reservations/${reservation.reservation_id}/seat`} className="btn btn-primary">Seat</Link>
+                : null}
+              </p>
+              <button className="btn btn-secondary">Edit</button>
+              <button className="btn btn-danger">Delete</button>
+          </div>
+      </div>
+  </li>
+));
+
 return (
-    searchForm
+    <>
+        <div>
+            {searchForm}
+        </div>
+        <div>
+            {reservationItems}
+        </div>
+    </>
 )
 
 }

@@ -8,7 +8,6 @@ const moment = require("moment-timezone")
 
 async function list(req, res, next) {
   const {date} = req.query
-  console.log("list date", date)
   let reservations
   
   if (date){
@@ -31,7 +30,7 @@ async function create (req, res){
 }
 
 function correctTimesOnly(req, res, next){
-  const {data} = req.body // Define 'data' here
+  const {data = {}} = req.body
 
   // Parse the reservation date and time in the server's time zone
   const reservationDateTime = moment.tz(`${data.reservation_date}T${data.reservation_time}`, 'America/Los_Angeles');
@@ -58,21 +57,19 @@ function correctTimesOnly(req, res, next){
 }
 
 
-
-
 async function read(req, res){
-  const data = res.locals.reservation_id
+  const data = res.locals.reservation
   res.json({data})
 }
 
 function reservationExists(req, res, next){
-  service.read(req.params.reservation_id)
+  service.read(req.params.reservationId)
   .then((reservation) => {
     if(reservation){
       res.locals.reservation = reservation
       return next()
     }
-    next({status: 404, message: 'Reservation cannot be found'})
+    next({status: 404, message: `Reservation ${req.params.reservationId} cannot be found`})
   })
   .catch(next)
 }
@@ -89,15 +86,15 @@ function propertiesExist(req, res, next){
     return next({status: 400, message: "Data is required"});
   }
 
-  const { first_name, last_name, mobile_number, reservation_date, reservation_time, people } = data;
+  const { first_name, last_name, mobile_number, reservation_date, reservation_time, status, people } = data;
 
-  console.log(data);
+  console.log("propertiesExist", data);
 
-  if (!first_name || first_name === ""){
+  if (!first_name || first_name.trim() === ""){
     return next({status: 400, message: "Reservation must include a first_name"});
   }
 
-  if (!last_name || last_name === ""){
+  if (!last_name || last_name.trim() === ""){
     return next({status: 400, message: "Reservation must include a last_name"});
   }
 
@@ -121,9 +118,54 @@ function propertiesExist(req, res, next){
 }
 
 
+async function updateStatus(req, res, next){
+  const updatedReservation = {
+    ...req.body.data, 
+    reservation_id: res.locals.reservation.reservation_id,
+  }
+
+  const data = await service.updateStatus(updatedReservation)
+  console.log("status Updated", data)
+
+  res.status(200).json({data: data[0]})
+}
+
+function reservationStatusCheck(req, res, next){
+  const { data = {} } = req.body;
+  
+  if (Object.keys(data).length === 0){
+    return next({status: 400, message: "Data is required"});
+  }
+
+  const { first_name, last_name, mobile_number, reservation_date, reservation_time, status, people } = data;
+
+  console.log("reservationStatusCheck", data);
+  const validStatus = ["booked", "seated"]
+
+  if (status.toLowerCase() === "seated" || status.toLowerCase() === "finished"){
+    return next({status: 400, message: "Reservation status cannot be `seated` or `finished`."})
+  }
+
+  if (status.toLowerCase() === "finished"){
+    return next({status: 400, message: "This reservation is already finished and cannot be updated"})
+  }
+
+  if (!status || status === undefined || status === null){
+    return next({status: 400, message: "The reservation status is missing"})
+  }
+
+  if (!validStatus.includes(status.toLowerCase())){
+    return next({status: 400, message: "This reservation status is unknown and must be a valid status."})
+  }
+
+  next();
+}
+
+
 
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [propertiesExist, correctTimesOnly, asyncErrorBoundary(create)],
-  read: [asyncErrorBoundary(read)]
+  read: [reservationExists, asyncErrorBoundary(read)],
+  updateStatus: [reservationExists, reservationStatusCheck, asyncErrorBoundary(updateStatus)]
 };

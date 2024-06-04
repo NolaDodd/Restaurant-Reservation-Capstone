@@ -1,5 +1,5 @@
 import React, {useState } from "react";
-import {Link, useNavigate} from "react-router-dom"
+import {useNavigate} from "react-router-dom"
 import { createReservation } from "../utils/api";
 import ErrorAlert from "./ErrorAlert";
 
@@ -135,7 +135,7 @@ function CreateEditReservation(){
                 </label>
                 <br/>
                 <button type="submit" className="btn btn-primary">Submit</button>
-                <Link to="/" className= "btn btn-secondary">Cancel</Link>
+                <button onClick={() => navigate(-1)} className= "btn btn-secondary">Cancel</button>
             </form>
             <ErrorAlert error={formError} />
         </div>    

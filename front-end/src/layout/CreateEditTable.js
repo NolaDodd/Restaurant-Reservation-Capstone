@@ -1,5 +1,7 @@
 import React, {useState } from "react";
-import {Link, useNavigate} from "react-router-dom"
+import {useNavigate} from "react-router-dom"
+import ErrorAlert from "./ErrorAlert";
+import { createTable } from "../utils/api";
 
 function CreateEditTable(){
     const initialFormState ={
@@ -8,6 +10,8 @@ function CreateEditTable(){
     }
 
     const [formData, setFormData] = useState({...initialFormState})
+    const [formError, setFormError] = useState(null);
+
     console.log(formData)
     
     const navigate = useNavigate()
@@ -15,11 +19,18 @@ function CreateEditTable(){
     const handleChange = ({target}) => {
         setFormData({...formData, [target.name]: target.value})
     }
+
     const handleSubmit = async (event) => {
         console.log("handleSubmit")
         event.preventDefault()
-        setFormData(initialFormState); 
-        navigate(`/dashboard`)
+
+        try {
+            await createTable(formData)
+            setFormData(initialFormState); 
+            navigate(`/dashboard`)
+        } catch (error){
+            setFormError(error)
+        }
     }
 
     const createTableForm = (
@@ -56,8 +67,9 @@ function CreateEditTable(){
                 </label>
                 <br/>
                 <button type="submit" className="btn btn-primary">Submit</button>
-                <Link to="/" className= "btn btn-secondary">Cancel</Link>
+                <button onClick={() => navigate(-1)} className= "btn btn-secondary">Cancel</button>
             </form>
+            <ErrorAlert error={formError} />
         </div>
      
 )
