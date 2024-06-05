@@ -18,31 +18,31 @@ import AssignTable from "./AssignTable"
  */
 function RootRoutes() {
 
-  const [reservations, setReservations] = useState([])
+  const [rootReservations, setRootReservations] = useState([])
 
     useEffect(() => {
       async function fetchReservations(){
         try{
           const fetchedReservations = await listReservations({today})
-          setReservations(fetchedReservations)
+          setRootReservations(fetchedReservations)
         } catch (error){
           console.error("Error fetching reservations:", error)
         }
       }
       fetchReservations()
-    }, [setReservations])
+    }, [setRootReservations])
 
   return (
       <Routes>
-        <Route path="/" element={<Dashboard reservations={reservations}/>} />
-        <Route path ="/search" element={<Search reservations={reservations}/>} />
-        <Route path="/reservations" element={<Dashboard reservations={reservations}/>} />
+        <Route path="/" element={<Dashboard rootReservations={rootReservations}/>} />
+        <Route path ="/search" element={<Search rootReservations={rootReservations}/>} />
+        <Route path="/reservations" element={<Dashboard rootReservations={rootReservations}/>} />
         <Route path="/reservations/new" element={<CreateEditReservation />} />
-        <Route path="/reservations/:reservationId/seat" element={<AssignTable />} />    
+        <Route path="/reservations/:reservationId/seat" element={<AssignTable rootReservations={rootReservations}/>} />    
         <Route path="/reservations/:reservationId/edit" element={<CreateEditReservation/>} />
         <Route path="/tables/new" element={<CreateEditTable />} />
         <Route path="/tables/:table_id/seat" element={<CreateEditTable/>}/>
-        <Route path="/dashboard/*" element={<Dashboard reservations={reservations} date={today()}/>} />
+        <Route path="/dashboard/*" element={<Dashboard rootReservations={rootReservations} date={today()}/>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
   );

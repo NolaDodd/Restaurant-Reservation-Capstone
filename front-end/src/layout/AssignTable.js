@@ -94,10 +94,7 @@ const handleChange = (event) => {
         </div>
       </div>
     </li>
-  ));
-  
-
-
+  )); 
 
   const tableOptions = 
     <div>

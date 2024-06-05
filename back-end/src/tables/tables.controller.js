@@ -8,14 +8,12 @@ async function list(req, res) {
 
 async function create (req, res){
   const data = await service.create(req.body.data)
-  console.log("created new table", data)
 
   res.status(201).json({data})
 }
 
 async function read(req, res){
   const data = res.locals.table
-  console.log("tablesread", data)
 
   res.json({data})
 }
@@ -91,7 +89,6 @@ async function tableUpdateCheck(req, res, next){
 
 async function update(req, res){
   const reservationId = req.body.data.reservation_id;
-  console.log("updated table", req.body.data)
 
   const reservation = await reservationService.read(reservationId)
 

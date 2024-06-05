@@ -1,6 +1,7 @@
 import React, {useState, useEffect } from "react";
 import {useNavigate, useParams} from "react-router-dom"
 import { createReservation, editReservationData } from "../utils/api";
+import { formatAsDate } from "../utils/date-time";
 import ErrorAlert from "./ErrorAlert";
 
 function CreateEditReservation(){
@@ -24,6 +25,7 @@ function CreateEditReservation(){
             if(reservationId) {
                 try {
                     const reservationData = await editReservationData(reservationId, abortController.signal);
+                    reservationData.reservation_date = formatAsDate(reservationData.reservation_date);
                     setFormData(reservationData);
                 } catch (error) {
                     console.log(error);

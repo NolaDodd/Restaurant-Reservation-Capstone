@@ -37,7 +37,6 @@ async function list(req, res, next) {
       reservations = await service.list()
 
       if (reservations.length <= 0){
-        console.log("test")
       return next({status: 400, message: "No reservations found"})
       } else {
         res.json({ data: reservations });
