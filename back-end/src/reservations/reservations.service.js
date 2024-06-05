@@ -38,6 +38,10 @@ return knex("reservations")
   function search(mobile_number) {
   console.log("knexnumber", mobile_number)
 
+  if (!mobile_number.trim()) {
+    return Promise.resolve([]);
+  }
+
   return knex("reservations")
     .whereRaw(
       "translate(mobile_number, '() -', '') like ?",

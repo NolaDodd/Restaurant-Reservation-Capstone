@@ -64,18 +64,6 @@ const handleChange = (event) => {
     setSelectedTable(selectedTable)
 }
 
-const handleStatusSeated = async (reservationId) => {
-
-const selectedReservation = reservation.find(reserve => reserve.reservation_id === Number(reservationId));
-console.log("handleStatusChange", selectedReservation)
-
-try{
-    await updateReservationSeated(selectedReservation)
-} catch (error){
-    setReservationsError(error)
-}
-}
-
   const reservationCard =
   reservation ?
     <div>

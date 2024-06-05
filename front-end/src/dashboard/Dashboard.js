@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {useLocation, useNavigate, Link} from "react-router-dom"
-import { updateReservationFinished, updateReservationSeated, deleteTableAssignment, listReservations, listTables } from "../utils/api";
+import { updateReservationFinished, deleteTableAssignment, listReservations, listTables, cancelReservation } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { today, previous, next } from "../utils/date-time";
 
@@ -32,22 +32,16 @@ function Dashboard() {
     setReservationsError(null);
     listTables(abortController.signal)
       .then(setTables)
-      .catch(error => {
-        if (error.name === 'AbortError') {
-          console.log('Fetch request for tables cancelled');
-        } else {
-          throw error;
-        }
-      });
+      .catch(setReservationsError);
     listReservations({ date }, abortController.signal)
-      .then(setReservations)
-      .catch(error => {
-        if (error.name === 'AbortError') {
-          console.log('Fetch request for reservations cancelled');
+      .then((reservations) => {
+        if (reservations.length === 0) {
+          setReservationsError({ message: "No reservations found" });
         } else {
-          throw error;
+          setReservations(reservations);
         }
-      });
+      })
+      .catch(setReservationsError);
     return () => abortController.abort();
   }
   
@@ -61,7 +55,7 @@ function Dashboard() {
       const selectedTableId = event.target.value;
       const selectedTable = tables.find(table => table.table_id === Number(selectedTableId))
       const finishedReservation = reservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
-        console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
+      console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
 
       try {
           await deleteTableAssignment(selectedTable)
@@ -73,17 +67,23 @@ function Dashboard() {
     }
   }
 
-  const handleDelete = async (event) => {
+  const handleCancel = async (event) => {
 
-    const confirm = window.confirm("Is this table ready to seat new guests? This cannot be undone.")
+    const confirm = window.confirm("Do you want to cancel this reservation? This cannot be undone.")
 
     if (confirm){
       const selectedTableId = event.target.value;
       const selectedTable = tables.find(table => table.table_id === Number(selectedTableId))
       const finishedReservation = reservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
-        console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
-
+      console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
+        
+      try {
+        await cancelReservation(finishedReservation)
+      } catch (error){
+        setReservationsError(error)
+      }
   }
+
 }
 
   const validReservations = reservations.filter((reservation) =>
@@ -106,7 +106,7 @@ function Dashboard() {
                 </p>
                 <Link to={`/reservations/${reservation.reservation_id}/edit`} className="btn btn-secondary" >Edit</Link>
                 <button className="btn btn-danger" data-reservation-id-cancel={reservation.reservation_id} 
-                  value={reservation.reservation_id} onClick={() => handleDelete}>Cancel</button>
+                  value={reservation.reservation_id} onClick={handleCancel}>Cancel</button>
             </div>
         </div>
     </li>

@@ -16,16 +16,14 @@ async function list(req, res, next) {
       reservations = await service.listByDate(date)
 
       filteredReservations = reservations.filter(reserve => reserve.status !== "finished")
-      console.log("list", reservations, date, filteredReservations)
 
       if (filteredReservations.length <= 0){
       return next({status: 400, message: "No reservations found"})
       } else {
-        res.json({ data: reservations });
+        res.json({ data: filteredReservations });
       }
 
   } else if (mobile_number){
-    console.log("mobile_number", mobile_number)
       reservations = await service.search(mobile_number)
 
       if (reservations.length <= 0){

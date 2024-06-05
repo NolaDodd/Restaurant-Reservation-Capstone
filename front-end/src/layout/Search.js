@@ -1,6 +1,6 @@
 import React, {useState } from "react";
 import {Link, useNavigate} from "react-router-dom"
-import { findReservations } from "../utils/api";
+import { findReservations, cancelReservation } from "../utils/api";
 import ErrorAlert from "./ErrorAlert";
 
 function Search({reservations}){
@@ -11,6 +11,10 @@ function Search({reservations}){
     const [formData, setFormData] = useState({...initialFormState})
     const [foundReservations, setFoundReservations] = useState([])
     const [searchError, setSearchError] = useState(null)
+    const [noReservations, setNoReservations] = useState(false)
+    const [reservationsError, setReservationsError] = useState(null);
+    const [tables, setTables] = useState([])
+  
 
     const navigate = useNavigate()
 
@@ -23,15 +27,41 @@ function Search({reservations}){
         event.preventDefault()
     
         try {
-            setFoundReservations([])
-            console.log("find", formData.mobile_number.trim())
-            const fetchReservations = await findReservations({ mobile_number: formData.mobile_number.trim() })
-            setFoundReservations(fetchReservations)
+            const fetchReservations = await findReservations({ mobile_number: formData.mobile_number })
+
+            if (fetchReservations.length <= 0){
+                setNoReservations(true)
+                setFoundReservations(fetchReservations)
+                throw new Error("No reservations found")
+            } else {
+                setNoReservations(false)
+                setFoundReservations(fetchReservations)
+            }
             setFormData(initialFormState);
         } catch (error){
-            setSearchError(error)
+            setSearchError(new Error(error.message))
         }
     }
+
+    
+  const handleCancel = async (event) => {
+
+    const confirm = window.confirm("Do you want to cancel this reservation? This cannot be undone.")
+
+    if (confirm){
+      const selectedTableId = event.target.value;
+      const selectedTable = tables.find(table => table.table_id === Number(selectedTableId))
+      const finishedReservation = reservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
+        console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
+        
+      try {
+        await cancelReservation(finishedReservation)
+      } catch (error){
+        setReservationsError(error)
+      }
+  }
+
+}
     
 
     const searchForm = (
@@ -93,8 +123,9 @@ let foundReservationItems = foundReservations.sort((a, b) => a.reservation_id - 
                   <Link to={`/reservations/${reservation.reservation_id}/seat`} className="btn btn-primary">Seat</Link>
                 : null}
               </p>
-              <button className="btn btn-secondary">Edit</button>
-              <button className="btn btn-danger">Delete</button>
+              <Link to={`/reservations/${reservation.reservation_id}/edit`} className="btn btn-secondary" >Edit</Link>
+                <button className="btn btn-danger" data-reservation-id-cancel={reservation.reservation_id} 
+                  value={reservation.reservation_id} onClick={() => handleCancel}>Cancel</button>
           </div>
       </div>
   </li>
@@ -104,10 +135,10 @@ return (
     <>
         <div>
             {searchForm}
-            {foundReservations.length > 0 ? `${foundReservations.length} Reservations found`: <ErrorAlert error={searchError} />}
+            {noReservations === true ? <ErrorAlert error={searchError}/> : null}
         </div>
         <div>
-            {foundReservations.length > 0 ? foundReservationItems: reservationItems}
+            {foundReservationItems.length > 0 || noReservations === true ? foundReservationItems: reservationItems}
         </div>
     </>
 )

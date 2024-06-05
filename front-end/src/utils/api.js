@@ -29,37 +29,6 @@ headers.append("Content-Type", "application/json");
  *  a promise that resolves to the `json` data or an error.
  *  If the response is not in the 200 - 399 range the promise is rejected.
  */
-// async function fetchJson(url, options, onCancel) {
-//   try {
-//     const response = await fetch(url, options);
-
-//     if (response.status === 204) {
-//       return null;
-//     }
-
-//     let payload;
-//     if (response.ok) {
-//       payload = await response.text();
-//       if (payload === 'OK') {
-//         return payload;
-//       }
-//       payload = JSON.parse(payload);
-//     } else {
-//       throw new Error(`Request failed: ${response.status}`);
-//     }
-
-//     if (payload.error) {
-//       return Promise.reject({ message: payload.error });
-//     }
-//     return payload.data;
-//   } catch (error) {
-//     if (error.name !== "AbortError") {
-//       console.error(error.stack);
-//       throw error;
-//     }
-//     return Promise.resolve(onCancel);
-//   }
-// }
 async function fetchJson(url, options, onCancel) {
   try {
     const response = await fetch(url, options);
@@ -68,7 +37,16 @@ async function fetchJson(url, options, onCancel) {
       return null;
     }
 
-    const payload = await response.json();
+    let payload;
+    if (response.ok) {
+      payload = await response.text();
+      if (payload === 'OK') {
+        return payload;
+      }
+      payload = JSON.parse(payload);
+    } else {
+      throw new Error(`Request failed: ${response.status}`);
+    }
 
     if (payload.error) {
       return Promise.reject({ message: payload.error });
@@ -140,7 +118,6 @@ return await fetchJson(url, { headers, signal }, [])
     console.log(error)
     throw error
   }
-
 }
 
 
@@ -167,13 +144,33 @@ export async function createReservation(reservation, signal) {
 
 
 /**
+ * Cancels a reservation and updates status to cancelled.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to the saved reservation, which will now have an 'id' property.
+ */
+export async function cancelReservation(reservation, signal) {
+  try{
+     const url = `${API_BASE_URL}/reservations/${reservation.reservation_id}/status`;
+      const options = {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ data: { status: "cancelled" } }),
+        signal,
+      };
+  return await fetchJson(url, options, reservation); 
+  } catch (error){
+    throw error
+  }
+}
+
+/**
  * Retrieves reservations by mobile number.
  * @returns {Promise<[reservation]>}
  *  a promise that resolves to a possibly empty array of reservation saved in the database.
  */
 
 export async function findReservations({ mobile_number }, signal) {
-  console.log("api find", mobile_number)
+  console.log("api reservation mobilenumber", mobile_number)
   try{
     const url = new URL(`${API_BASE_URL}/reservations`);
     if (mobile_number) {
@@ -248,7 +245,7 @@ export async function updateReservationFinished(reservation, signal) {
  *  a promise that resolves to the saved table, which will now have an 'id' property.
  */
 export async function createTable(table, signal) {
-  console.log("create Table", table)
+  console.log("create Table api", table)
   try{
      const url = `${API_BASE_URL}/tables`;
       table.capacity = Number(table.capacity);
