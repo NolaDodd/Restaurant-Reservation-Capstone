@@ -56,12 +56,27 @@ function tableExists (req, res, next){
     .catch(next)
 }
 
-async function tableCheck(req, res, next){
+async function tableUpdateCheck(req, res, next){
+  const {data = {}} = req.body
+
   const tableId = req.params.tableId;
-  const reservationId = req.body.data.reservation_id
+  const reservationId = data.reservation_id
 
   const table = await service.read(tableId)
+
+  if (Object.keys(data).length === 0 || !reservationId){
+    return next({ status: 400, message: `The reservation_id is missing.` });
+  }
+
   const reservation = await reservationService.read(reservationId)
+
+  if (!reservation){
+    return next({ status: 404, message: `Reservation ${reservationId} does not exist.` });
+  }
+
+  if (reservation.status === "seated"){
+    return next({status: 400, message: `This reservation is already seated`})
+  }
 
   if (table.capacity < reservation.people) {
     return next({ status: 400, message: 'The table does not have enough capacity for the reservation.' });
@@ -69,19 +84,31 @@ async function tableCheck(req, res, next){
 
   if (table.reservation_id != null) {
     return next({ status: 400, message: 'The table is already occupied.' });
-
-  }
-
-  if (!req.body.data || !reservationId) {
-    return next({ status: 400, message: 'The reservation_id does not exist.' });
   }
 
   next()
 }
 
-async function update(req, res, next){
+async function update(req, res){
   const reservationId = req.body.data.reservation_id;
-  console.log("updated table", reservationId)
+  console.log("updated table", req.body.data)
+
+  const reservation = await reservationService.read(reservationId)
+
+  if (reservation.status === "booked"){
+      const updatedReservation = {
+        ...req.body.data,
+        status: "seated"
+
+      }    
+    await reservationService.update(updatedReservation)
+  } else {
+    const updatedReservation = {
+      ...req.body.data,
+      status: "finished"
+    }    
+  await reservationService.update(updatedReservation)
+  }
 
   const updatedTable = {...req.body.data,
     table_id: req.params.tableId,
@@ -91,28 +118,33 @@ async function update(req, res, next){
   res.status(200).json({data})
 }
 
+
 async function deleteCheck(req, res, next){
   const tableId = req.params.tableId;
   const table = await service.read(tableId)
+
+  if (!table.table_id){
+    return next({ status: 404, message: `Table ${tableId} does not exist`})
+  }
 
   if (table.reservation_id === null){
     return next({ status: 400, message: "This table is not occupied"})
   }
 
-  if (!table.table_id){
-    return next({ status: 404, message: "This table has no table_id"})
-  }
-
   next()
-}
-
-async function destroy(req, res, next){
-  service.delete(res.locals.table.tableId)
-
 }
 
 async function freeTable(req, res){
   const {table} = res.locals
+
+  const updatedReservation = {
+    ...req.body.data,
+    status: "finished",
+    reservation_id: table.reservation_id
+  }  
+
+  await reservationService.update(updatedReservation)
+
   await service.freeTable(table.table_id);
   res.sendStatus(200);
 }
@@ -121,7 +153,6 @@ module.exports = {
     list: asyncErrorBoundary(list),
     create: [tableCreateValid, asyncErrorBoundary(create)],
     read: [tableExists, asyncErrorBoundary(read)],
-    update: [tableExists, tableCheck, asyncErrorBoundary(update)],
-    delete: [asyncErrorBoundary(deleteCheck), asyncErrorBoundary(destroy)],
+    update: [tableExists, asyncErrorBoundary(tableUpdateCheck), asyncErrorBoundary(update)],
     freeTable: [tableExists, asyncErrorBoundary(deleteCheck), asyncErrorBoundary(freeTable) ]
   };

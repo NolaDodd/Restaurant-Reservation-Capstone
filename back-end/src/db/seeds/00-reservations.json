@@ -6,7 +6,6 @@
     "reservation_date": "2020-12-31",
     "reservation_time": "20:00:00",
     "people": 6,
-    "status": "Booked",
     "created_at": "2020-12-10T08:30:32.326Z",
     "updated_at": "2020-12-10T08:30:32.326Z"
   },
@@ -17,7 +16,6 @@
     "reservation_date": "2020-12-30",
     "reservation_time": "20:00",
     "people": 1,
-    "status": "Booked",
     "created_at": "2020-12-10T08:31:32.326Z",
     "updated_at": "2020-12-10T08:31:32.326Z"
   },
@@ -28,7 +26,6 @@
     "reservation_date": "2020-12-30",
     "reservation_time": "18:00",
     "people": 1,
-    "status": "Booked",
     "created_at": "2020-12-10T08:31:32.326Z",
     "updated_at": "2020-12-10T08:31:32.326Z"
   },
@@ -39,7 +36,6 @@
     "reservation_date": "2025-12-30",
     "reservation_time": "18:00",
     "people": 3,
-    "status": "Booked",
     "created_at": "2020-12-10T08:31:32.326Z",
     "updated_at": "2020-12-10T08:31:32.326Z"
   },
@@ -50,140 +46,7 @@
     "reservation_date": "2026-12-30",
     "reservation_time": "18:00",
     "people": 2,
-    "status": "Booked",
     "created_at": "2020-12-10T08:31:32.326Z",
     "updated_at": "2020-12-10T08:31:32.326Z"
-  },
-  {
-    "first_name": "Clark",
-    "last_name": "Kent",
-    "mobile_number": "620-346-4852",
-    "reservation_date": "2024-05-31",
-    "reservation_time": "18:00",
-    "people": 2,
-    "status": "Booked",
-    "created_at": "2024-05-29T08:31:32.326Z",
-    "updated_at": "2024-05-29T08:31:32.326Z"
-  },
-  {
-    "first_name": "Bruce",
-    "last_name": "Wayne",
-    "mobile_number": "212-453-4792",
-    "reservation_date": "2024-06-01",
-    "reservation_time": "13:00",
-    "people": 1,
-    "status": "Booked",
-    "created_at": "2024-05-29T08:31:32.326Z",
-    "updated_at": "2024-05-29T08:31:32.326Z"
-  },
-  {
-    "first_name": "Peter",
-    "last_name": "Parker",
-    "mobile_number": "215-147-9053",
-    "reservation_date": "2024-06-02",
-    "reservation_time": "10:40",
-    "people": 4,
-    "status": "Booked",
-    "created_at": "2024-05-29T08:31:32.326Z",
-    "updated_at": "2024-05-29T08:31:32.326Z"
-  },
-  {
-    "first_name": "Diana",
-    "last_name": "Prince",
-    "mobile_number": "808-333-4819",
-    "reservation_date": "2024-06-03",
-    "reservation_time": "14:00",
-    "people": 3,
-    "status": "Booked",
-    "created_at": "2024-05-29T08:31:32.326Z",
-    "updated_at": "2024-05-29T08:31:32.326Z"
-  },
-  {
-    "first_name": "Mickey",
-    "last_name": "Mouse",
-    "mobile_number": "714-222-2468",
-    "reservation_date": "2024-06-04",
-    "reservation_time": "12:00",
-    "people": 6,
-    "status": "Booked",
-    "created_at": "2024-05-29T08:31:32.326Z",
-    "updated_at": "2024-05-29T08:31:32.326Z"
-  },
-  {
-    "first_name": "Bugs",
-    "last_name": "Bunny",
-    "mobile_number": "714-808-5623",
-    "reservation_date": "2024-06-05",
-    "reservation_time": "14:00",
-    "people": 5,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
-  },
-  {
-    "first_name": "Daffy",
-    "last_name": "Duck",
-    "mobile_number": "714-238-1167",
-    "reservation_date": "2024-06-05",
-    "reservation_time": "15:00",
-    "people": 1,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
-  },
-  {
-    "first_name": "Mario",
-    "last_name": "Luigi",
-    "mobile_number": "714-808-5623",
-    "reservation_date": "2024-06-06",
-    "reservation_time": "11:00",
-    "people": 2,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
-  },
-  {
-    "first_name": "Ninja",
-    "last_name": "Turtles",
-    "mobile_number": "714-808-5623",
-    "reservation_date": "2024-06-06",
-    "reservation_time": "16:00",
-    "people": 4,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
-  },
-  {
-    "first_name": "Barbie",
-    "last_name": "Ken",
-    "mobile_number": "205-900-1093",
-    "reservation_date": "2024-06-07",
-    "reservation_time": "12:00",
-    "people": 2,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
-  },
-  {
-    "first_name": "Elle",
-    "last_name": "Woods",
-    "mobile_number": "808-356-1276",
-    "reservation_date": "2024-06-07",
-    "reservation_time": "18:00",
-    "people": 10,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
-  },
-  {
-    "first_name": "Indiana",
-    "last_name": "Jones",
-    "mobile_number": "750-547-0378",
-    "reservation_date": "2024-06-08",
-    "reservation_time": "15:00",
-    "people": 4,
-    "status": "Booked",
-    "created_at": "2024-06-01T08:31:32.326Z",
-    "updated_at": "2024-06-01T08:31:32.326Z"
   }
 ]

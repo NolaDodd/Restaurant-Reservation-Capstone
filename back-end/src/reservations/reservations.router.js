@@ -16,6 +16,7 @@ router.route("/")
 
 router.route("/:reservationId")
     .get(controller.read)
+    .put(controller.editReservation)
     .all(methodNotAllowed)
 
 router.route("/:reservationId/status")

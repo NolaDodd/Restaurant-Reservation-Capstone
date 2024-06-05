@@ -85,7 +85,7 @@ async function fetchJson(url, options, onCancel) {
 
 
 /**
- * Retrieves all existing reservation.
+ * Retrieves all existing reservations.
  * @returns {Promise<[reservation]>}
  *  a promise that resolves to a possibly empty array of reservation saved in the database.
  */
@@ -123,6 +123,11 @@ export async function loadReservation(reservationId, signal) {
   }
 }
 
+/**
+ * Lists all tables.
+ * @returns {Promise<[tables]>}
+ *  a promise that resolves to a possibly empty array of reservation saved in the database.
+ */
 
 export async function listTables(params, signal) {
   try{
@@ -160,28 +165,42 @@ export async function createReservation(reservation, signal) {
   }
 }
 
+
 /**
- * Finds reservation by mobile number.
+ * Retrieves reservations by mobile number.
  * @returns {Promise<[reservation]>}
- *  a promise that resolves to the saved reservation, which will now have an 'id' property.
+ *  a promise that resolves to a possibly empty array of reservation saved in the database.
  */
-export async function findReservation(reservation, signal) {
+
+export async function findReservations({ mobile_number }, signal) {
+  console.log("api find", mobile_number)
   try{
-     const url = `${API_BASE_URL}/reservations`;
-      const options = {
-        method: "GET",
-        headers,
-        body: JSON.stringify({ data: reservation.mobile_number }),
-        signal,
-      };
-  return await fetchJson(url, options, reservation); 
+    const url = new URL(`${API_BASE_URL}/reservations`);
+    if (mobile_number) {
+        url.searchParams.append('mobile_number', mobile_number);
+    }
+    return await fetchJson(url, { headers, signal }, [])
+        .then(formatReservationDate)
+        .then(formatReservationTime);
   } catch (error){
+    console.log(error)
     throw error
   }
 }
 
-
-
+/**
+ * Updates reservation "Seated" to the database.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to the saved reservation, which will now have an 'id' property.
+ */
+export async function editReservationData(reservationId, signal) {
+  try{
+    const url = `${API_BASE_URL}/reservations/${reservationId}`;
+    return await fetchJson(url, { signal }, {}); 
+  } catch (error){
+    throw error
+  }
+}
 
 /**
  * Updates reservation "Seated" to the database.
@@ -194,7 +213,7 @@ export async function updateReservationSeated(reservation, signal) {
       const options = {
         method: "PUT",
         headers,
-        body: JSON.stringify({ data: { status: "Seated" } }),
+        body: JSON.stringify({ data: { status: "seated" } }),
         signal,
       };
   return await fetchJson(url, options, reservation); 
@@ -214,7 +233,7 @@ export async function updateReservationFinished(reservation, signal) {
     const options = {
         method: "PUT",
         headers,
-        body: JSON.stringify({ data: { status: "Finished" } }),
+        body: JSON.stringify({ data: { status: "finished" } }),
         signal,
       };
   return await fetchJson(url, options, reservation); 

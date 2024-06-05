@@ -73,8 +73,21 @@ function Dashboard() {
     }
   }
 
+  const handleDelete = async (event) => {
+
+    const confirm = window.confirm("Is this table ready to seat new guests? This cannot be undone.")
+
+    if (confirm){
+      const selectedTableId = event.target.value;
+      const selectedTable = tables.find(table => table.table_id === Number(selectedTableId))
+      const finishedReservation = reservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
+        console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
+
+  }
+}
+
   const validReservations = reservations.filter((reservation) =>
-      reservation.reservation_date === date && reservation.status !== "Finished"
+      reservation.reservation_date === date && reservation.status.toLowerCase() !== "finished"
   );
 
   const reservationItems = validReservations.map((reservation, index) => (
@@ -87,12 +100,13 @@ function Dashboard() {
                 <p className="card-text"><b>Reservation Time:</b> {reservation.reservation_time}</p>
                 <p className="card-text"><b>Number of People:</b> {reservation.people}</p>
                 <p data-reservation-id-status={reservation.reservation_id}>
-                  <b>Status:</b> {reservation.status}  {reservation.status === "Booked" ? 
+                  <b>Status:</b> {reservation.status}  {reservation.status === "booked" ? 
                     <Link to={`/reservations/${reservation.reservation_id}/seat`} className="btn btn-primary" >Seat</Link>
                   : null}
                 </p>
-                <button className="btn btn-secondary">Edit</button>
-                <button className="btn btn-danger">Delete</button>
+                <Link to={`/reservations/${reservation.reservation_id}/edit`} className="btn btn-secondary" >Edit</Link>
+                <button className="btn btn-danger" data-reservation-id-cancel={reservation.reservation_id} 
+                  value={reservation.reservation_id} onClick={() => handleDelete}>Cancel</button>
             </div>
         </div>
     </li>
@@ -138,6 +152,7 @@ function Dashboard() {
       </div>
     </main>
   );
+
 }
 
-export default Dashboard;
+export default Dashboard

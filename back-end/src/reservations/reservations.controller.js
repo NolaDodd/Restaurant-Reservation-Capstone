@@ -8,25 +8,75 @@ const moment = require("moment-timezone")
 
 async function list(req, res, next) {
   const {date} = req.query
+  const {mobile_number} = req.query
+  
   let reservations
   
   if (date){
-    reservations = await service.listByDate(date)
-  } else {
-    reservations = await service.list()
-  }
+      reservations = await service.listByDate(date)
 
-  if (reservations.length <= 0){
-    return next({status: 400, message: "No reservations found for the given date"})
-  } else {
-    res.json({ data: reservations });
-  }
+      filteredReservations = reservations.filter(reserve => reserve.status !== "finished")
+      console.log("list", reservations, date, filteredReservations)
 
+      if (filteredReservations.length <= 0){
+      return next({status: 400, message: "No reservations found"})
+      } else {
+        res.json({ data: reservations });
+      }
+
+  } else if (mobile_number){
+    console.log("mobile_number", mobile_number)
+      reservations = await service.search(mobile_number)
+
+      if (reservations.length <= 0){
+        res.json({data: []})
+      } else {
+        res.json({ data: reservations });
+
+      }
+    
+  } else {
+      reservations = await service.list()
+
+      if (reservations.length <= 0){
+        console.log("test")
+      return next({status: 400, message: "No reservations found"})
+      } else {
+        res.json({ data: reservations });
+      }
+  }
+}
+
+async function read(req, res){
+  const data = res.locals.reservation
+  res.json({data})
+}
+
+function reservationExists(req, res, next){
+  service.read(req.params.reservationId)
+  .then((reservation) => {
+    if(reservation){
+      res.locals.reservation = reservation
+      return next()
+    }
+    next({status: 404, message: `Reservation ${req.params.reservationId} cannot be found`})
+  })
+  .catch(next)
 }
 
 async function create (req, res){
   const data = await service.create(req.body.data)
   res.status(201).json({data})
+}
+
+function reservationCreateCheck(req, res, next){
+  const {data = {}} = req.body
+  const {status} = data
+
+  if (status === "seated" || status === "finished"){
+    return next({status: 400, message: "Reservation status cannot be `seated` or `finished`."})
+  }
+  next()
 }
 
 function correctTimesOnly(req, res, next){
@@ -52,26 +102,7 @@ function correctTimesOnly(req, res, next){
   if (reservationDateTime.isBefore(today)) {
     return next({ status: 400, message: "Only future reservations are allowed." });
   }
-
   next()
-}
-
-
-async function read(req, res){
-  const data = res.locals.reservation
-  res.json({data})
-}
-
-function reservationExists(req, res, next){
-  service.read(req.params.reservationId)
-  .then((reservation) => {
-    if(reservation){
-      res.locals.reservation = reservation
-      return next()
-    }
-    next({status: 404, message: `Reservation ${req.params.reservationId} cannot be found`})
-  })
-  .catch(next)
 }
 
 function isValidTime(time) {
@@ -86,9 +117,7 @@ function propertiesExist(req, res, next){
     return next({status: 400, message: "Data is required"});
   }
 
-  const { first_name, last_name, mobile_number, reservation_date, reservation_time, status, people } = data;
-
-  console.log("propertiesExist", data);
+  const { first_name, last_name, mobile_number, reservation_date, reservation_time, people } = data;
 
   if (!first_name || first_name.trim() === ""){
     return next({status: 400, message: "Reservation must include a first_name"});
@@ -118,54 +147,96 @@ function propertiesExist(req, res, next){
 }
 
 
-async function updateStatus(req, res, next){
-  const updatedReservation = {
-    ...req.body.data, 
-    reservation_id: res.locals.reservation.reservation_id,
-  }
-
-  const data = await service.updateStatus(updatedReservation)
-  console.log("status Updated", data)
-
-  res.status(200).json({data: data[0]})
-}
-
 function reservationStatusCheck(req, res, next){
   const { data = {} } = req.body;
-  
-  if (Object.keys(data).length === 0){
-    return next({status: 400, message: "Data is required"});
-  }
 
-  const { first_name, last_name, mobile_number, reservation_date, reservation_time, status, people } = data;
+  const { status } = data;
 
-  console.log("reservationStatusCheck", data);
-  const validStatus = ["booked", "seated"]
+  const {reservation} = res.locals
 
-  if (status.toLowerCase() === "seated" || status.toLowerCase() === "finished"){
-    return next({status: 400, message: "Reservation status cannot be `seated` or `finished`."})
-  }
+  const lowerCaseStatus = status.toLowerCase()
 
-  if (status.toLowerCase() === "finished"){
-    return next({status: 400, message: "This reservation is already finished and cannot be updated"})
-  }
+  const validStatus = ["booked", "seated", "finished", "cancelled"]
 
-  if (!status || status === undefined || status === null){
+  if (!lowerCaseStatus || lowerCaseStatus === undefined || lowerCaseStatus === null){
     return next({status: 400, message: "The reservation status is missing"})
   }
 
-  if (!validStatus.includes(status.toLowerCase())){
+  if (!validStatus.includes(lowerCaseStatus)){
     return next({status: 400, message: "This reservation status is unknown and must be a valid status."})
+  }
+
+  if (reservation.status === "finished"){
+    return next({status: 400, message: "A finished reservation cannot be updated"})
   }
 
   next();
 }
 
+async function updateStatus(req, res, next){
+  const updatedReservation = {
+    ...req.body.data, 
+    reservation_id: res.locals.reservation.reservation_id,
+  }
+  const data = await service.update(updatedReservation)
 
+  res.status(200).json({data: data[0]})
+}
+
+async function updateReservation(req, res){
+  let updatedData = req.body.data
+  const data = await service.update(updatedData)
+
+  res.status(200).json({data: data[0]})
+}
+
+async function editPropertiesExist(req, res, next){
+  const { data = {} } = req.body;
+  const {reservationId} = req.params
+
+  const lookReservation = await service.read(reservationId)
+  
+  if (Object.keys(data).length === 0){
+    return next({status: 404, message: "Data is required"});
+  }
+
+  if (!lookReservation){
+    return next({status: 404, message: "This reservation does not exist"});
+  }
+
+  const { first_name, last_name, mobile_number, reservation_date, reservation_time, people } = data;
+
+  if (!first_name || first_name.trim() === ""){
+    return next({status: 400, message: "Reservation must include a first_name"});
+  }
+
+  if (!last_name || last_name.trim() === ""){
+    return next({status: 400, message: "Reservation must include a last_name"});
+  }
+
+  if (!mobile_number || mobile_number === ""){
+    return next({status: 400, message: "Reservation must include a mobile_number"});
+  }
+
+  if (!reservation_date || reservation_date === "" || isNaN(Date.parse(reservation_date))){
+    return next({status: 400, message: "Reservation must include a reservation_date"});
+  }
+
+  if (!reservation_time || reservation_time === "" || !isValidTime(reservation_time)){
+    return next({status: 400, message: "Reservation must include a reservation_time"});
+  }
+
+  if (!people || people === "" || people === 0 || typeof people !== "number" ){
+    return next({status: 400, message: "Reservation number of people must be 1 or above"});
+  }
+
+  next();
+}
 
 module.exports = {
   list: [asyncErrorBoundary(list)],
-  create: [propertiesExist, correctTimesOnly, asyncErrorBoundary(create)],
+  create: [propertiesExist, correctTimesOnly, reservationCreateCheck, asyncErrorBoundary(create)],
   read: [reservationExists, asyncErrorBoundary(read)],
+  editReservation: [asyncErrorBoundary(editPropertiesExist), asyncErrorBoundary(updateReservation)],
   updateStatus: [reservationExists, reservationStatusCheck, asyncErrorBoundary(updateStatus)]
-};
+}

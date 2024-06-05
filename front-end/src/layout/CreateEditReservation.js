@@ -1,6 +1,6 @@
-import React, {useState } from "react";
-import {useNavigate} from "react-router-dom"
-import { createReservation } from "../utils/api";
+import React, {useState, useEffect } from "react";
+import {useNavigate, useParams} from "react-router-dom"
+import { createReservation, editReservationData } from "../utils/api";
 import ErrorAlert from "./ErrorAlert";
 
 function CreateEditReservation(){
@@ -15,12 +15,33 @@ function CreateEditReservation(){
 
     const [formData, setFormData] = useState({...initialFormState})
     const [formError, setFormError] = useState(null);
-    
+
+    const {reservationId} = useParams()
+
+    useEffect(() => {
+        const abortController = new AbortController();
+        async function loadForm() {
+            if(reservationId) {
+                try {
+                    const reservationData = await editReservationData(reservationId, abortController.signal);
+                    setFormData(reservationData);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }
+        loadForm();
+        return () => abortController.abort();
+    }, [reservationId]);
+
+
     const handleChange = ({target}) => {
         setFormData({...formData, [target.name]: target.value})
     }
 
     const navigate = useNavigate()
+
+
 
     const handleSubmit = async (event) => {
         console.log("handleSubmit")

@@ -39,6 +39,8 @@ function freeTable(tableId) {
       .update({ reservation_id: null });
   }
 
+
+
 module.exports = {
     list, 
     create,
