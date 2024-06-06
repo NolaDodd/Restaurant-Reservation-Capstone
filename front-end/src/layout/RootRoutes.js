@@ -32,6 +32,7 @@ function RootRoutes() {
       fetchReservations()
     }, [setRootReservations])
 
+    
   return (
       <Routes>
         <Route path="/" element={<Dashboard rootReservations={rootReservations}/>} />

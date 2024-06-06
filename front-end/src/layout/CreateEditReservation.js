@@ -57,21 +57,12 @@ function CreateEditReservation(){
           setFormError(error)
         }
       }
-      
-
-    const handleEdit = async (event) => {
-        console.log("handleEdit")
-        event.preventDefault()
-        setFormData(initialFormState); 
-        navigate("/dashboard")
-    }
 
     const createReservationForm = (
         <div>
-            <br />
             <form onSubmit={handleSubmit}>
                 <label htmlFor="first_name">
-                    First Name:
+                    <b>First Name:</b>
                     <br />
                     <input
                         id="first_name"
@@ -85,7 +76,7 @@ function CreateEditReservation(){
                 </label>
                 <br/>
                 <label htmlFor="last_name">
-                    Last Name:
+                    <b>Last Name:</b>
                     <br />
                     <input
                         id="last_name"
@@ -99,22 +90,24 @@ function CreateEditReservation(){
                 </label>
                 <br/>
                 <label htmlFor="mobile_number">
-                    Mobile Number:
+                    <b>Mobile Number:</b>
                     <br />
                     <input 
                     id="mobile_number" 
                     type="text"
                     name="mobile_number"
                     placeholder="XXX-XXX-XXXX"
+                    pattern="(\d{3}-\d{3}-\d{4}|\d{10})"
                     onChange={handleChange}
                     value={formData.mobile_number}
                     required
+                    title="Please enter a valid phone number with 10 digits"
                     >
                     </input>
                 </label>
                 <br/>
                 <label htmlFor="reservation_date">
-                    Reservation Date:
+                    <b>Reservation Date:</b>
                     <br />
                     <input 
                     id="reservation_date" 
@@ -129,7 +122,7 @@ function CreateEditReservation(){
                 </label>
                 <br/>
                 <label htmlFor="reservation_time">
-                    Reservation Time:
+                    <b>Reservation Time:</b>
                     <br />
                     <input 
                     id="reservation_time" 
@@ -144,7 +137,7 @@ function CreateEditReservation(){
                 </label>
                 <br/>
                 <label htmlFor="people">
-                    Number of People:
+                    <b>Number of People:</b>
                     <br />
                     <input 
                     id="people" 
@@ -166,7 +159,10 @@ function CreateEditReservation(){
   
 
 return ( 
-    createReservationForm          
+    <div>
+        <h3 className="title">New Reservation</h3>
+        {createReservationForm  }        
+    </div>
 )
 
 

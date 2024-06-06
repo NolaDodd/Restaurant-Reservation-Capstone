@@ -35,10 +35,9 @@ function CreateEditTable(){
 
     const createTableForm = (
         <div>
-            <br />
             <form onSubmit={handleSubmit}>
                 <label htmlFor="table_name">
-                    Table Name:
+                    <b>Table Name:</b>
                     <br />
                     <input
                         id="table_name"
@@ -52,7 +51,7 @@ function CreateEditTable(){
                 </label>
                 <br/>
                 <label htmlFor="capacity">
-                    Capacity:
+                    <b>Capacity:</b>
                     <br />
                     <input
                         id="capacity"
@@ -75,7 +74,10 @@ function CreateEditTable(){
 )
 
 return (
-    createTableForm
+    <div>
+        <h3 className="title">New Table</h3>
+        { createTableForm}
+    </div>
 )
 
 }

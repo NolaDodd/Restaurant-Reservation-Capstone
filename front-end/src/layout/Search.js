@@ -1,6 +1,6 @@
-import React, {useState } from "react";
+import React, {useState, useEffect } from "react";
 import {Link, useNavigate} from "react-router-dom"
-import { findReservations, cancelReservation } from "../utils/api";
+import { findReservations, cancelReservation, listTables } from "../utils/api";
 import ErrorAlert from "./ErrorAlert";
 
 function Search({rootReservations}){
@@ -13,8 +13,28 @@ function Search({rootReservations}){
     const [searchError, setSearchError] = useState(null)
     const [noReservations, setNoReservations] = useState(false)
     const [tables, setTables] = useState([])
+
+    console.log("tables", tables)
   
     const navigate = useNavigate()
+
+    useEffect(() => {
+        const abortController = new AbortController();
+      
+        async function loadTables() {
+          try {
+            setSearchError(null);
+            const foundTables = await listTables(abortController.signal);
+            setTables(foundTables);
+          } catch (error) {
+            setSearchError(error);
+          }
+        }
+      
+        loadTables();
+      
+        return () => abortController.abort();
+      }, []);
 
     const handleChange = ({target}) => {
         setFormData({...formData, [target.name]: target.value})
@@ -41,19 +61,20 @@ function Search({rootReservations}){
         }
     }
 
-    
-  const handleCancel = async (event) => {
+
+const handleCancel = async (event) => {
+    event.preventDefault()
 
     const confirm = window.confirm("Do you want to cancel this reservation? This cannot be undone.")
 
     if (confirm){
-      const selectedTableId = event.target.value;
-      const selectedTable = tables.find(table => table.table_id === Number(selectedTableId))
-      const finishedReservation = rootReservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
-        console.log("finishedRes", finishedReservation, selectedTable, selectedTableId)
-        
+
+      const selectedTableId = event.target.value
+      const finishedReservation = rootReservations.find(reservation => reservation.reservation_id === Number(selectedTableId))
+
       try {
         await cancelReservation(finishedReservation)
+        navigate(0)
       } catch (error){
         setSearchError(error)
       }
@@ -62,10 +83,8 @@ function Search({rootReservations}){
     
     const searchForm = (
         <div>
-            <br />
             <form onSubmit={handleSubmit}>
             <label htmlFor="mobile_number">
-                    <b>Search Reservation:</b>
                     <br />
                     <input 
                     id="mobile_number" 
@@ -85,31 +104,9 @@ function Search({rootReservations}){
 )
 
 let foundReservationItems = foundReservations.sort((a, b) => a.reservation_id - b.reservation_id).map((reservation, index) => (
-    <li key={index} style={{ listStyleType: "none" }}>
-        <div className="card">
-            <div className="card-body">
-                <div className="card-header"><h5 className="card-title">Reservation {reservation.reservation_id}</h5></div>
-                <p className="card-text"><b>Name:</b> {reservation.first_name} {reservation.last_name}</p>
-                <p className="card-text"><b>Mobile Number:</b> {reservation.mobile_number}</p>
-                <p className="card-text"><b>Reservation Time:</b> {reservation.reservation_time}</p>
-                <p className="card-text"><b>Reservation Date:</b> {reservation.reservation_date}</p>
-                <p className="card-text"><b>Number of People:</b> {reservation.people}</p>
-                <p data-reservation-id-status={reservation.reservation_id}>
-                  <b>Status:</b> {reservation.status}  {reservation.status === "booked" ? 
-                    <Link to={`/reservations/${reservation.reservation_id}/seat`} className="btn btn-primary">Seat</Link>
-                  : null}
-                </p>
-                <button className="btn btn-secondary">Edit</button>
-                <button className="btn btn-danger">Delete</button>
-            </div>
-        </div>
-    </li>
-  ));
-
-  const reservationItems = rootReservations.map((reservation, index) => (
-    <li key={index} style={{ listStyleType: "none" }}>
-        <div className="card">
-            <div className="card-body">
+<li key={index} className="box-container" style={{ listStyle : "none"}}>
+        <div className="card reservation">
+            <div className="card-body reservationtext">
                 <div className="card-header"><h5 className="card-title">Reservation {reservation.reservation_id}</h5></div>
                 <p className="card-text"><b>Name:</b> {reservation.first_name} {reservation.last_name}</p>
                 <p className="card-text"><b>Mobile Number:</b> {reservation.mobile_number}</p>
@@ -123,7 +120,32 @@ let foundReservationItems = foundReservations.sort((a, b) => a.reservation_id - 
                     </>
                   : null} 
 
-                </p> {reservation.status !== "cancelled" ?
+                </p> {reservation.status === "booked" ?
+                <button className="btn btn-danger" data-reservation-id-cancel={reservation.reservation_id} 
+                  value={reservation.reservation_id} onClick={handleCancel}>Cancel</button> : null}
+            </div>
+        </div>
+    </li>
+  ));
+
+  const reservationItems = rootReservations.sort((a, b) => a.reservation_id - b.reservation_id).map((reservation, index) => (
+    <li key={index} className="box-container" style={{ listStyle : "none"}}>
+        <div className="card reservation">
+            <div className="card-body reservationtext">
+                <div className="card-header"><h5 className="card-title">Reservation {reservation.reservation_id}</h5></div>
+                <p className="card-text"><b>Name:</b> {reservation.first_name} {reservation.last_name}</p>
+                <p className="card-text"><b>Mobile Number:</b> {reservation.mobile_number}</p>
+                <p className="card-text"><b>Reservation Time:</b> {reservation.reservation_time}</p>
+                <p className="card-text"><b>Reservation Date:</b> {reservation.reservation_date}</p>
+                <p className="card-text"><b>Number of People:</b> {reservation.people}</p>
+                <p data-reservation-id-status={reservation.reservation_id}>
+                  <b>Status:</b> {reservation.status}  {reservation.status === "booked" ? <>
+                    <Link to={`/reservations/${reservation.reservation_id}/seat`} className="btn btn-primary" >Seat</Link>
+                    <Link to={`/reservations/${reservation.reservation_id}/edit`} className="btn btn-secondary" >Edit</Link>
+                    </>
+                  : null} 
+
+                </p> {reservation.status === "booked" ?
                 <button className="btn btn-danger" data-reservation-id-cancel={reservation.reservation_id} 
                   value={reservation.reservation_id} onClick={handleCancel}>Cancel</button> : null}
             </div>
@@ -134,6 +156,7 @@ let foundReservationItems = foundReservations.sort((a, b) => a.reservation_id - 
 return (
     <>
         <div>
+        <b className="title">Search Reservation</b>
             {searchForm}
             {noReservations === true ? <ErrorAlert error={searchError}/> : null}
         </div>

@@ -30,38 +30,6 @@ headers.append("Content-Type", "application/json");
  *  If the response is not in the 200 - 399 range the promise is rejected.
  */
 
-// async function fetchJson(url, options, onCancel) {
-//   try {
-//     const response = await fetch(url, options);
-
-//     if (response.status === 204) {
-//       return null;
-//     }
-
-//     let payload;
-//     if (response.ok) {
-//       payload = await response.text();
-//       if (payload === 'OK') {
-//         return payload;
-//       }
-//       payload = JSON.parse(payload);
-//     } else {
-//       throw new Error(`Request failed: ${response.status}`);
-//     }
-
-//     if (payload.error) {
-//       return Promise.reject({ message: payload.error });
-//     }
-//     return payload.data;
-//   } catch (error) {
-//     if (error.name !== "AbortError") {
-//       console.error(error.stack);
-//       throw error;
-//     }
-//     return Promise.resolve(onCancel);
-//   }
-// }
-
 async function fetchJson(url, options, onCancel) {
   try {
     const response = await fetch(url, options);
@@ -70,7 +38,12 @@ async function fetchJson(url, options, onCancel) {
       return null;
     }
 
-    const payload = await response.json();
+    let payload = await response.text();
+
+    // Check if the response is "OK" or an empty string before parsing as JSON
+    if (payload !== 'OK' && payload !== '') {
+      payload = JSON.parse(payload);
+    }
 
     if (payload.error) {
       return Promise.reject({ message: payload.error });
@@ -84,6 +57,7 @@ async function fetchJson(url, options, onCancel) {
     return Promise.resolve(onCancel);
   }
 }
+
 
 
 /**
@@ -114,6 +88,7 @@ export async function listReservations(params, signal) {
  */
 
 export async function loadReservation(reservationId, signal) {
+  console.log("api load", reservationId)
   try{
       const url = new URL(`${API_BASE_URL}/reservations/${reservationId}`);
   return await fetchJson(url, { headers, signal }, [])
@@ -320,7 +295,7 @@ export async function deleteTableAssignment(tableFinish, signal) {
         signal,
       };
       fetchJson(url, options, tableFinish)
-  //return await fetchJson(url, options, tableFinish); 
+  return await fetchJson(url, options, tableFinish); 
   } catch (error){
     throw error
   }
