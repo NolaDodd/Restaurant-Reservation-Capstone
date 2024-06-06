@@ -1,5 +1,23 @@
 # Capstone: Restaurant Reservation System
 
+[DEPLOYED SITE](https://restaurant-reservation-capstone-delta.vercel.app/)
+
+## Technologies/Tools:
+- JavaScript
+- HTML
+- CSS and Bootstrap
+- NodeJS
+- PostgreSQL
+- React
+- REST APIs
+- Express
+  
+![https://i.imgur.com/Fa2wFgA.png](https://i.imgur.com/Fa2wFgA.png)
+
+
+
+---------------------------
+
 > You have been hired as a full stack developer at _Periodic Tables_, a startup that is creating a reservation system for fine dining restaurants.
 > The software is used only by restaurant personnel when a customer calls to request a reservation.
 > At this point, the customers will not access the system online.
