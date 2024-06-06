@@ -169,9 +169,9 @@ function Dashboard({rootReservations}) {
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Reservations for {date}</h4>
       </div>      
-      <button onClick={() => navigate(`/dashboard?date=${previous(date)}`)}>Previous</button>
-      <button onClick={() => navigate(`/dashboard?date=${today()}`)}>Today</button>
-      <button onClick={() => navigate(`/dashboard?date=${next(date)}`)}>Next</button>
+      <button className="btn btn-secondary" onClick={() => navigate(`/dashboard?date=${previous(date)}`)}>Previous</button>
+      <button className="btn btn-secondary" onClick={() => navigate(`/dashboard?date=${today()}`)}>Today</button>
+      <button className="btn btn-secondary" onClick={() => navigate(`/dashboard?date=${next(date)}`)}>Next</button>
       <br/>
       <div>
         <h3 className="title">Today's Reservations</h3>
