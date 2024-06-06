@@ -10,7 +10,7 @@ import { today, previous, next } from "../utils/date-time";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({rootReservations}) {
+function Dashboard() {
 
   const [allReservations, setAllReservations] = useState([])
   const [reservations, setReservations] = useState([])
