@@ -87,6 +87,7 @@ const handleCancel = async (event) => {
             <label htmlFor="mobile_number">
                     <br />
                     <input 
+                    style={{ width: '300px', height: '40px' }}
                     id="mobile_number" 
                     type="text"
                     name="mobile_number"
@@ -96,10 +97,10 @@ const handleCancel = async (event) => {
                     >
                     </input>
                 </label>
-                <button type="submit" className="btn btn-primary" onClick={() => navigate(`/search?mobile_number=${formData.mobile_number}`)}>Find</button>
                 <br/>
-            </form>
+            <button type="submit" className="btn btn-primary button-margin" onClick={() => navigate(`/search?mobile_number=${formData.mobile_number}`)}>Find</button>
             <Link type="submit" className="btn btn-secondary" onClick={"location.reload()"}>Reset</Link>
+            </form>
         </div>
 )
 
@@ -154,9 +155,9 @@ let foundReservationItems = foundReservations.sort((a, b) => a.reservation_id - 
   ));
 
 return (
-    <>
+    <>        
+    <h3 className="title">Search Reservation</h3>
         <div>
-        <b className="title">Search Reservation</b>
             {searchForm}
             {noReservations === true ? <ErrorAlert error={searchError}/> : null}
         </div>

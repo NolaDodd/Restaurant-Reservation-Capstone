@@ -56,7 +56,7 @@ function CreateEditReservation(){
       }
 
     const createReservationForm = (
-        <div>
+        <div className="formtext">
             <form onSubmit={handleSubmit}>
                 <label htmlFor="first_name">
                     <b>First Name:</b>

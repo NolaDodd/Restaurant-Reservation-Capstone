@@ -17,6 +17,7 @@ function Dashboard({rootReservations}) {
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([])
 
+  console.log(reservations, allReservations)
   let navigate = useNavigate()
   let location = useLocation()
 
@@ -117,7 +118,7 @@ function Dashboard({rootReservations}) {
 
   const reservationItems = reservations.map((reservation, index) => (
     reservation.reservation_date === date ?
-    <li key={index} className="box-container" style={{ listStyle : "none"}}>
+    <li key={index} style={{ listStyle : "none"}}>
         <div className="card reservation">
             <div className="card-body reservationtext">
                 <div className="card-header"><h5 className="card-title">Reservation {reservation.reservation_id}</h5></div>
@@ -144,7 +145,7 @@ function Dashboard({rootReservations}) {
 
   const tableItems = tables.map((table, index) => {
     return (
-      <li key={index} className="box-container" style={{ listStyle : "none"}}>
+      <li key={index} style={{ listStyle : "none"}}>
         <div className="card row table" >
           <div className="card-body tabletext">
             <div className="card-header"><h5 className="card-title">{table.table_name}</h5></div>
@@ -169,18 +170,18 @@ function Dashboard({rootReservations}) {
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Reservations for {date}</h4>
       </div>      
-      <button className="btn btn-secondary" onClick={() => navigate(`/dashboard?date=${previous(date)}`)}>Previous</button>
-      <button className="btn btn-secondary" onClick={() => navigate(`/dashboard?date=${today()}`)}>Today</button>
-      <button className="btn btn-secondary" onClick={() => navigate(`/dashboard?date=${next(date)}`)}>Next</button>
+        <button className="btn btn-secondary button-margin" onClick={() => navigate(`/dashboard?date=${previous(date)}`)}>Previous</button>
+        <button className="btn btn-secondary button-margin" onClick={() => navigate(`/dashboard?date=${today()}`)}>Today</button>
+        <button className="btn btn-secondary button-margin" onClick={() => navigate(`/dashboard?date=${next(date)}`)}>Next</button>
       <br/>
       <div>
         <h3 className="title">Today's Reservations</h3>
         <ErrorAlert error={reservationsError} />
-        <div className="row">
-          {reservationItems.map((item, index) => (
-            <div key={index} className="grid-item">{item}</div>
-          ))}
-        </div>
+          <div className="row">
+            {reservationItems.map((item, index) => (
+              <div key={index}>{item}</div>
+            ))}
+          </div>
       </div>
       <h3 className="title">Tables</h3>
       <div className="row">
