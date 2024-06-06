@@ -17,7 +17,6 @@ function Dashboard() {
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([])
 
-  console.log(reservations, allReservations)
   let navigate = useNavigate()
   let location = useLocation()
 

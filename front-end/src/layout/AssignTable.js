@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {useNavigate, useParams} from "react-router-dom"
-import { updateReservationSeated, loadReservation, listTables, updateTable, listReservations } from "../utils/api";
+import { updateReservationSeated, loadReservation, listTables, updateTable,} from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 /**
