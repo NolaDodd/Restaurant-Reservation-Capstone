@@ -43,12 +43,9 @@ function CreateEditReservation(){
 
     const navigate = useNavigate()
 
-
-
     const handleSubmit = async (event) => {
         console.log("handleSubmit")
         event.preventDefault()
-      
         try {
           await createReservation(formData);
           setFormData(initialFormState);
@@ -157,7 +154,6 @@ function CreateEditReservation(){
         </div>    
 )
   
-
 return ( 
     <div>
         <h3 className="title">New Reservation</h3>

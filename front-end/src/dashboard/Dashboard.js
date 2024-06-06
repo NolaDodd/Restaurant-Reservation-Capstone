@@ -12,6 +12,7 @@ import { today, previous, next } from "../utils/date-time";
  */
 function Dashboard({rootReservations}) {
 
+  const [allReservations, setAllReservations] = useState([])
   const [reservations, setReservations] = useState([])
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([])
@@ -28,28 +29,50 @@ function Dashboard({rootReservations}) {
 
   useEffect(() => {
     const abortController = new AbortController();
-  
-    const loadData = async () => {
+
+    async function loadDashboard() {
       try {
         setReservationsError(null);
-  
-        const [reservationsData, tablesData] = await Promise.all([
-          listReservations({ date }, abortController.signal),
-          listTables(abortController.signal)
-        ]);
-        
-        setReservations(reservationsData);
-        setTables(tablesData);
-  
+        const newReservations = await listReservations({ date }, abortController.signal);
+
+        if (newReservations.length === 0) {
+          setReservationsError({ message: "No reservations found" });
+        } else {
+          setReservations(newReservations);
+        }
+
+        const newAllReservations = await listReservations(abortController.signal)
+        if (newAllReservations.length === 0) {
+          setReservationsError({ message: "No reservations found" });
+        } else {
+          setAllReservations(newAllReservations);
+        }
+
       } catch (error) {
         setReservationsError(error);
       }
-    };
-  
-    loadData();
-  
+    }
+    loadDashboard();
+
     return () => abortController.abort();
-  }, [rootReservations, date]);
+  }, [date, location.pathname]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+  
+    async function loadTables() {
+      try {
+        setReservationsError(null);
+        const foundTables = await listTables(abortController.signal);
+        setTables(foundTables);
+      } catch (error) {
+        setReservationsError(error);
+      }
+    }
+  
+    loadTables();
+    return () => abortController.abort();
+  }, [date, location.pathname]);
 
   const handleFinish = async (event) => {
     event.preventDefault()
@@ -60,10 +83,11 @@ function Dashboard({rootReservations}) {
       console.log("handleSubmit")
       const selectedTableId = event.target.value
       const selectedTable = tables.find(table => table.table_id === Number(selectedTableId))
-      const finishedReservation = reservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
+      const finishedReservation = allReservations.find(reservation => reservation.reservation_id === Number(selectedTable.reservation_id))
 
       await updateReservationFinished(finishedReservation)
       await deleteTableAssignment(selectedTable)
+
       navigate(0)
       } catch (error){
           setReservationsError(error)
@@ -79,7 +103,8 @@ function Dashboard({rootReservations}) {
     if (confirm){
 
       const selectedTableId = event.target.value
-      const finishedReservation = rootReservations.find(reservation => reservation.reservation_id === Number(selectedTableId))
+      const finishedReservation = allReservations.find(reservation => reservation.reservation_id === Number(selectedTableId))
+      console.log("selected", selectedTableId, finishedReservation)
 
       try {
         await cancelReservation(finishedReservation)
@@ -117,7 +142,6 @@ function Dashboard({rootReservations}) {
     : null
   ));
 
-
   const tableItems = tables.map((table, index) => {
     return (
       <li key={index} className="box-container" style={{ listStyle : "none"}}>
@@ -145,9 +169,9 @@ function Dashboard({rootReservations}) {
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Reservations for {date}</h4>
       </div>      
-      <button className="btn btn-secondary button-margin" onClick={() => navigate(`/dashboard?date=${previous(date)}`)}>Previous</button>
-      <button className="btn btn-secondary button-margin" onClick={() => navigate(`/dashboard?date=${today()}`)}>Today</button>
-      <button className="btn btn-secondary button-margin" onClick={() => navigate(`/dashboard?date=${next(date)}`)}>Next</button>
+      <button onClick={() => navigate(`/dashboard?date=${previous(date)}`)}>Previous</button>
+      <button onClick={() => navigate(`/dashboard?date=${today()}`)}>Today</button>
+      <button onClick={() => navigate(`/dashboard?date=${next(date)}`)}>Next</button>
       <br/>
       <div>
         <h3 className="title">Today's Reservations</h3>

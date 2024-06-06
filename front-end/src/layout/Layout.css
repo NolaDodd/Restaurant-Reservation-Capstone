@@ -9,30 +9,38 @@
   flex-direction: column; 
 }
 
+.pt-title{
+  color: #e1ecf5;
+  font-size: 24px;
+}
+
 @media (max-width: 780px) {
   .side-bar {
     flex-direction: row; 
     height: auto; 
     min-height: 0; 
+    justify-content: center;
   }
 
   .side-bar ul {
     display: flex; 
     flex-direction: row; 
     list-style: none; 
-    padding: 0;
+    padding: 10px;
     flex-wrap: nowrap; 
   }
 
   .side-bar li {
     margin: 5px; 
   }
+
+  .pt-title{
+    color: #e1ecf5;
+    font-size: 34px;
+  }
 }
 
-.pt-title{
-  color: #e1ecf5;
-  font-size: 26px;
-}
+
 
 
 .table {

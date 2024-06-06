@@ -17,33 +17,35 @@ import AssignTable from "./AssignTable"
  * @returns {JSX.Element}
  */
 function RootRoutes() {
-
   const [rootReservations, setRootReservations] = useState([])
 
     useEffect(() => {
+      const abortController = new AbortController();
+      
       async function fetchReservations(){
         try{
-          const fetchedReservations = await listReservations({today})
+          const fetchedReservations = await listReservations(abortController.signal)
           setRootReservations(fetchedReservations)
         } catch (error){
           console.error("Error fetching reservations:", error)
         }
       }
       fetchReservations()
-    }, [setRootReservations])
+      return () => abortController.abort();
 
+    }, [setRootReservations])
     
   return (
       <Routes>
-        <Route path="/" element={<Dashboard rootReservations={rootReservations}/>} />
+        <Route path="/" element={<Dashboard rootReservations={rootReservations} />} />
         <Route path ="/search" element={<Search rootReservations={rootReservations}/>} />
-        <Route path="/reservations" element={<Dashboard rootReservations={rootReservations}/>} />
+        <Route path="/reservations" element={<Dashboard rootReservations={rootReservations} />} />
         <Route path="/reservations/new" element={<CreateEditReservation />} />
-        <Route path="/reservations/:reservationId/seat" element={<AssignTable rootReservations={rootReservations}/>} />    
+        <Route path="/reservations/:reservationId/seat" element={<AssignTable rootReservations={rootReservations} />} />    
         <Route path="/reservations/:reservationId/edit" element={<CreateEditReservation/>} />
         <Route path="/tables/new" element={<CreateEditTable />} />
         <Route path="/tables/:table_id/seat" element={<CreateEditTable/>}/>
-        <Route path="/dashboard/*" element={<Dashboard rootReservations={rootReservations} date={today()}/>} />
+        <Route path="/dashboard/*" element={<Dashboard rootReservations={rootReservations} date={today()} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
   );

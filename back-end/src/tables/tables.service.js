@@ -26,13 +26,6 @@ function update(updatedTable){
         .update(updatedTable, "*")
 }
 
-function destroy(selectedTable){
-    return knex("tables")
-        .select("*")
-        .where({table_id: selectedTable.table_id})
-        .del()
-}
-
 function freeTable(tableId) {
     return knex("tables")
       .where({ table_id: tableId })
@@ -46,6 +39,5 @@ module.exports = {
     create,
     read,
     update,
-    delete: destroy,
     freeTable,
 }

@@ -75,9 +75,7 @@ const handleChange = (event) => {
     const selectedTable = tables.find(table => table.table_id === Number(selectedTableId));
     setSelectedTable(selectedTable)
 }
-
-
-           
+         
 
   const reservationCard =
   reservation ?
