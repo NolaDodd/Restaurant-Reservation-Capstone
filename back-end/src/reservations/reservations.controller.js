@@ -102,11 +102,6 @@ function correctTimesOnly(req, res, next){
   next()
 }
 
-function isValidTime(time) {
-  const timeFormat = /^([01]\d|2[0-3]):([0-5]\d)$/;
-  return timeFormat.test(time)
-}
-
 function propertiesExist(req, res, next){
   const { data = {} } = req.body;
   
@@ -187,6 +182,22 @@ async function updateReservation(req, res){
   res.status(200).json({data: data[0]})
 }
 
+function isValidTime(time) {
+  const timeFormatWithSeconds = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+  const timeFormatWithoutSeconds = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  
+  if (timeFormatWithSeconds.test(time)) {
+    return true;
+  }
+  else if (timeFormatWithoutSeconds.test(time)) {
+    return true;
+  }
+  else {
+    console.log("Invalid time format:", time);
+    return false;
+  }
+}
+
 async function editPropertiesExist(req, res, next){
   const { data = {} } = req.body;
   const {reservationId} = req.params
@@ -216,11 +227,11 @@ async function editPropertiesExist(req, res, next){
   }
 
   if (!reservation_date || reservation_date === "" || isNaN(Date.parse(reservation_date))){
-    return next({status: 400, message: "Reservation must include a reservation_date"});
+    return next({status: 400, message: `${999}: Reservation must include a valid reservation_date`});
   }
 
   if (!reservation_time || reservation_time === "" || !isValidTime(reservation_time)){
-    return next({status: 400, message: "Reservation must include a reservation_time"});
+    return next({status: 400, message: `${reservation_time}: Reservation must include a valid reservation_time `});
   }
 
   if (!people || people === "" || people === 0 || typeof people !== "number" ){

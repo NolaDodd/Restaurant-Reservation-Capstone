@@ -11,8 +11,6 @@ function CreateEditTable(){
 
     const [formData, setFormData] = useState({...initialFormState})
     const [formError, setFormError] = useState(null);
-
-    console.log(formData)
     
     const navigate = useNavigate()
 

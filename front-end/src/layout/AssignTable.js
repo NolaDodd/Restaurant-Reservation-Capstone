@@ -15,7 +15,6 @@ function AssignTable({rootReservations}) {
   
   const [tables, setTables] = useState([])
   const [selectedTable, setSelectedTable] = useState(null)
-  console.log(selectedTable)
 
   let navigate = useNavigate()
   const { reservationId } = useParams();

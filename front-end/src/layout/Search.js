@@ -14,8 +14,6 @@ function Search({rootReservations}){
     const [noReservations, setNoReservations] = useState(false)
     const [tables, setTables] = useState([])
 
-    console.log("tables", tables)
-  
     const navigate = useNavigate()
 
     useEffect(() => {

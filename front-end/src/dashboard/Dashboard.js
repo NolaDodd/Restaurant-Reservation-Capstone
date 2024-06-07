@@ -104,7 +104,6 @@ function Dashboard() {
 
       const selectedTableId = event.target.value
       const finishedReservation = allReservations.find(reservation => reservation.reservation_id === Number(selectedTableId))
-      console.log("selected", selectedTableId, finishedReservation)
 
       try {
         await cancelReservation(finishedReservation)

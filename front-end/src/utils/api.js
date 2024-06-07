@@ -88,7 +88,6 @@ export async function listReservations(params, signal) {
  */
 
 export async function loadReservation(reservationId, signal) {
-  console.log("api load", reservationId)
   try{
       const url = new URL(`${API_BASE_URL}/reservations/${reservationId}`);
   return await fetchJson(url, { headers, signal }, [])
@@ -148,7 +147,6 @@ export async function createReservation(reservation, signal) {
  *  a promise that resolves to the saved reservation, which will now have an 'id' property.
  */
 export async function cancelReservation(reservation, signal) {
-  console.log("Cancel Table API")
   try{
      const url = `${API_BASE_URL}/reservations/${reservation.reservation_id}/status`;
       const options = {
@@ -170,7 +168,6 @@ export async function cancelReservation(reservation, signal) {
  */
 
 export async function findReservations({ mobile_number }, signal) {
-  console.log("api reservation mobilenumber", mobile_number)
   try{
     const url = new URL(`${API_BASE_URL}/reservations`);
     if (mobile_number) {
@@ -186,14 +183,38 @@ export async function findReservations({ mobile_number }, signal) {
 }
 
 /**
- * Updates reservation "Seated" to the database.
+ * Updates reservation data to the database.
  * @returns {Promise<[reservation]>}
- *  a promise that resolves to the saved reservation, which will now have an 'id' property.
+ *  a promise that resolves to the saved reservation.
  */
 export async function editReservationData(reservationId, signal) {
   try{
     const url = `${API_BASE_URL}/reservations/${reservationId}`;
     return await fetchJson(url, { signal }, {}); 
+  } catch (error){
+    throw error
+  }
+}
+
+
+/**
+ * Updates reservation data to the database.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to the saved reservation.
+ */
+export async function updateReservationEdit(reservation, reservationId, signal) {
+  try{
+
+    reservation.people = Number(reservation.people)
+    const url = `${API_BASE_URL}/reservations/${reservationId}`;
+
+    const options = {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ data: reservation }),
+      signal,
+    };
+    return await fetchJson(url, options, { signal }, {}); 
   } catch (error){
     throw error
   }
@@ -245,7 +266,6 @@ export async function updateReservationFinished(reservation, signal) {
  *  a promise that resolves to the saved table, which will now have an 'id' property.
  */
 export async function createTable(table, signal) {
-  console.log("create Table api", table)
   try{
      const url = `${API_BASE_URL}/tables`;
       table.capacity = Number(table.capacity);
