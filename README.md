@@ -4,15 +4,14 @@
 
 ## Technologies/Tools:
 - JavaScript
-- HTML
-- CSS and Bootstrap
+- HTML, CSS, and Bootstrap
 - NodeJS
-- PostgreSQL
-- React
+- Knex and PostgreSQL
+- React and React Router (v6)
 - REST APIs
 - Express
-- Knex
 - Moment
+- Jest and Puppeteer
   
 ![https://i.imgur.com/Fa2wFgA.png](https://i.imgur.com/Fa2wFgA.png)
 
