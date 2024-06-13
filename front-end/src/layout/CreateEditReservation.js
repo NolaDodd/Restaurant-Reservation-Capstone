@@ -155,19 +155,14 @@ function CreateEditReservation(){
             </form>
             <ErrorAlert error={formError} />
         </div>    
-)
+    )
   
 return (
     <div>
         {createEditReservationForm}
     </div>
-)
-
-
-
+    )
 
 }
-
-
 
 export default CreateEditReservation
