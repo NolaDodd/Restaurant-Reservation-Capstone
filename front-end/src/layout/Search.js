@@ -1,6 +1,6 @@
-import React, {useState, useEffect } from "react";
+import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom"
-import { findReservations, cancelReservation, listTables } from "../utils/api";
+import { findReservations, cancelReservation } from "../utils/api";
 import ErrorAlert from "./ErrorAlert";
 
 function Search({rootReservations}){
@@ -12,27 +12,8 @@ function Search({rootReservations}){
     const [foundReservations, setFoundReservations] = useState([])
     const [searchError, setSearchError] = useState(null)
     const [noReservations, setNoReservations] = useState(false)
-    const [tables, setTables] = useState([])
 
     const navigate = useNavigate()
-
-    useEffect(() => {
-        const abortController = new AbortController();
-      
-        async function loadTables() {
-          try {
-            setSearchError(null);
-            const foundTables = await listTables(abortController.signal);
-            setTables(foundTables);
-          } catch (error) {
-            setSearchError(error);
-          }
-        }
-      
-        loadTables();
-      
-        return () => abortController.abort();
-      }, []);
 
     const handleChange = ({target}) => {
         setFormData({...formData, [target.name]: target.value})

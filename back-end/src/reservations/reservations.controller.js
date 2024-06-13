@@ -5,23 +5,15 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const service = require("./reservations.service")
 const moment = require("moment-timezone")
 
-
-async function list(req, res, next) {
-  const {date} = req.query
-  const {mobile_number} = req.query
+async function list(req, res) {
+  const {date, mobile_number} = req.query
   
   let reservations
   
   if (date){
-      reservations = await service.listByDate(date)
-
-      filteredReservations = reservations.filter(reserve => reserve.status !== "finished")
-
-      if (filteredReservations.length <= 0){
-      return next({status: 400, message: "No reservations found"})
-      } else {
-        res.json({ data: filteredReservations });
-      }
+    reservations = await service.listByDate(date)
+    filteredReservations = reservations.filter(reserve => reserve.status !== "finished")
+    res.status(200).json({ data: filteredReservations })
 
   } else if (mobile_number){
       reservations = await service.search(mobile_number)
@@ -30,17 +22,11 @@ async function list(req, res, next) {
         res.json({data: []})
       } else {
         res.json({ data: reservations });
-
       }
     
   } else {
       reservations = await service.list()
-
-      if (reservations.length <= 0){
-      return next({status: 400, message: "No reservations found"})
-      } else {
-        res.json({ data: reservations });
-      }
+      res.json({ data: reservations });
   }
 }
 
@@ -245,6 +231,6 @@ module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [propertiesExist, correctTimesOnly, reservationCreateCheck, asyncErrorBoundary(create)],
   read: [reservationExists, asyncErrorBoundary(read)],
-  editReservation: [asyncErrorBoundary(editPropertiesExist), asyncErrorBoundary(updateReservation)],
+  editReservation: [asyncErrorBoundary(editPropertiesExist), correctTimesOnly, asyncErrorBoundary(updateReservation)],
   updateStatus: [reservationExists, reservationStatusCheck, asyncErrorBoundary(updateStatus)]
 }
