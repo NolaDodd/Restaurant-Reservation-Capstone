@@ -189,6 +189,7 @@ async function editPropertiesExist(req, res, next){
   const {reservationId} = req.params
 
   const lookReservation = await service.read(reservationId)
+  console.log(data, reservationId, lookReservation)
   
   if (Object.keys(data).length === 0){
     return next({status: 404, message: "Data is required"});
