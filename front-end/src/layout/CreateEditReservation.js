@@ -43,18 +43,18 @@ function CreateEditReservation(){
 
     const navigate = useNavigate()
 
-      const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            if (reservationId) {
-                await updateReservationEdit(formData, reservationId);
-            } else {
-                await createReservation(formData);
-            }
-            setFormData(initialFormState);
-            navigate(`/dashboard`);
-        } catch (error) {
-            setFormError(error);
+    const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+        if (reservationId) {
+            await updateReservationEdit(formData, reservationId);
+        } else {
+            await createReservation(formData);
+        }
+        setFormData(initialFormState);
+        navigate(`/dashboard`);
+    } catch (error) {
+        setFormError(error);
         }
     };
 

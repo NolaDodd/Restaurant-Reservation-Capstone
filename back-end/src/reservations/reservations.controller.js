@@ -186,47 +186,97 @@ function isValidTime(time) {
 
 async function editPropertiesExist(req, res, next){
   const { data = {} } = req.body;
-  const {reservationId} = req.params
+  const { reservationId } = req.params;
 
-  const lookReservation = await service.read(reservationId)
-  console.log(data, reservationId, lookReservation)
-  
-  if (Object.keys(data).length === 0){
-    return next({status: 404, message: "Data is required"});
-  }
+  // Retrieve the existing reservation
+  const lookReservation = await service.read(reservationId);
 
   if (!lookReservation){
     return next({status: 404, message: "This reservation does not exist"});
   }
 
-  const { first_name, last_name, mobile_number, reservation_date, reservation_time, people } = data;
-
-  if (!first_name || first_name.trim() === ""){
-    return next({status: 400, message: "Reservation must include a first_name"});
+  // Ensure data is provided in the request body
+  if (Object.keys(data).length === 0){
+    return next({status: 400, message: "Data is required"});
   }
 
-  if (!last_name || last_name.trim() === ""){
-    return next({status: 400, message: "Reservation must include a last_name"});
+  // Validate first_name
+  if (data.first_name !== null && (!data.first_name || data.first_name.trim() === "")){
+    return next({status: 400, message: "Reservation must include a valid first_name"});
   }
 
-  if (!mobile_number || mobile_number === ""){
-    return next({status: 400, message: "Reservation must include a mobile_number"});
+  // Validate last_name
+  if (data.last_name !== null && (!data.last_name || data.last_name.trim() === "")){
+    return next({status: 400, message: "Reservation must include a valid last_name"});
   }
 
-  if (!reservation_date || reservation_date === "" || isNaN(Date.parse(reservation_date))){
-    return next({status: 400, message: `${999}: Reservation must include a valid reservation_date`});
+  // Validate mobile_number
+  if (data.mobile_number !== null && (!data.mobile_number || data.mobile_number === "")){
+    return next({status: 400, message: "Reservation must include a valid mobile_number"});
   }
 
-  if (!reservation_time || reservation_time === "" || !isValidTime(reservation_time)){
-    return next({status: 400, message: `${reservation_time}: Reservation must include a valid reservation_time `});
+  // Validate reservation_date
+  if (data.reservation_date !== null && (!data.reservation_date || data.reservation_date === "" || isNaN(Date.parse(data.reservation_date)))){
+    return next({status: 400, message: "Reservation must include a valid reservation_date"});
   }
 
-  if (!people || people === "" || people === 0 || typeof people !== "number" ){
+  // Validate reservation_time
+  if (data.reservation_time !== null && (!data.reservation_time || data.reservation_time === "" || !isValidTime(data.reservation_time))){
+    return next({status: 400, message: "Reservation must include a valid reservation_time"});
+  }
+
+  // Validate people
+  if (data.people !== null && (!data.people || data.people === "" || data.people === 0 || typeof data.people !== "number")){
     return next({status: 400, message: "Reservation number of people must be 1 or above"});
   }
 
   next();
 }
+
+
+// async function editPropertiesExist(req, res, next){
+//   const { data = {} } = req.body;
+//   const {reservationId} = req.params
+
+//   const lookReservation = await service.read(reservationId)
+//   console.log(data, reservationId, lookReservation)
+  
+//   if (Object.keys(data).length === 0){
+//     return next({status: 404, message: "Data is required"});
+//   }
+
+//   if (!lookReservation){
+//     return next({status: 404, message: "This reservation does not exist"});
+//   }
+
+//   const { first_name, last_name, mobile_number, reservation_date, reservation_time, people } = data;
+
+//   if (!first_name || first_name.trim() === ""){
+//     return next({status: 400, message: "Reservation must include a first_name"});
+//   }
+
+//   if (!last_name || last_name.trim() === ""){
+//     return next({status: 400, message: "Reservation must include a last_name"});
+//   }
+
+//   if (!mobile_number || mobile_number === ""){
+//     return next({status: 400, message: "Reservation must include a mobile_number"});
+//   }
+
+//   if (!reservation_date || reservation_date === "" || isNaN(Date.parse(reservation_date))){
+//     return next({status: 400, message: `${999}: Reservation must include a valid reservation_date`});
+//   }
+
+//   if (!reservation_time || reservation_time === "" || !isValidTime(reservation_time)){
+//     return next({status: 400, message: `${reservation_time}: Reservation must include a valid reservation_time `});
+//   }
+
+//   if (!people || people === "" || people === 0 || typeof people !== "number" ){
+//     return next({status: 400, message: "Reservation number of people must be 1 or above"});
+//   }
+
+//   next();
+// }
 
 module.exports = {
   list: [asyncErrorBoundary(list)],
